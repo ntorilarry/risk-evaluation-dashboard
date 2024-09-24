@@ -140,7 +140,7 @@ const Chart = () => {
   return (
     <div>
       <div className="bg-[#d7aefd] mx-auto py-6">
-        <div className="w-full h-[500px] mx-auto" ref={chartRef}></div>
+        <div className="w-full h-[50vh] m-auto" ref={chartRef}></div>
       </div>
     </div>
   );

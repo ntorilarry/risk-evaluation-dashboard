@@ -108,6 +108,7 @@ const Chart = () => {
           },
           z: 10,
         },
+        // Top X-axis for additional labels(topAxisLabels)
         {
           data: topAxisLabels,
           position: "top",
@@ -125,6 +126,8 @@ const Chart = () => {
             show: false,
           },
         },
+
+        // Bottom X-axis for additional labels(bottomAxisLabels)
         {
           data: bottomAxisLabels,
           position: "bottom",
@@ -162,6 +165,8 @@ const Chart = () => {
             },
           },
         },
+
+        //Legend
         {
           type: "value",
           position: "right",
@@ -170,14 +175,30 @@ const Chart = () => {
           axisLabel: {
             show: true,
             formatter: function (value) {
-              if (value === 10) return "High Risk";
-              if (value === 5) return "Medium Risk";
-              if (value === 1) return "Low Risk";
+              if (value === 10) {
+                return `{riskLabel|High Risk}\n{innovationLabel|Strong need for \n innovation}`;
+              }
+              if (value === 5) {
+                return `{riskLabel|Medium Risk}\n{innovationLabel|Need for \n innovation}`;
+              }
+              if (value === 1) {
+                return `{riskLabel|Low Risk}\n{innovationLabel|Low need for \n innovation}`;
+              }
             },
-            color: "#3a0c78",
-            fontSize: "12px",
-            fontWeight: "bold",
-            fontFamily: "Poppins",
+            rich: {
+              riskLabel: {
+                color: "#3a0c78",
+                fontWeight: "bold",
+                fontSize: 12,
+                fontFamily: "Poppins",
+              },
+              innovationLabel: {
+                color: "#7a49ab",
+                fontSize: 10,
+                fontFamily: "Poppins",
+                marginTop: "10px",
+              },
+            },
           },
           axisLine: {
             show: false,
@@ -190,6 +211,7 @@ const Chart = () => {
           },
         },
       ],
+
       series: [
         {
           type: "bar",
@@ -247,7 +269,7 @@ const Chart = () => {
     <div className="bg-[#d7aefd] mx-auto py-6">
       <div className="w-full overflow-x-auto">
         <div
-          className="min-w-[800px] lg:min-w-full h-[75vh] m-auto"
+          className="min-w-[800px] md:min-w-full h-[75vh] m-auto"
           ref={chartRef}
         ></div>
       </div>

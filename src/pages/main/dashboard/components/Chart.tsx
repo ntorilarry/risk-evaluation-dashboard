@@ -26,10 +26,72 @@ const Chart = () => {
     ];
     let data = [6.6, 6.3, 5.7, 5, 5.3];
 
+    // Function to determine the risk level based on the value
+    const getRiskLevel = (value) => {
+      if (value >= 7) return "High Risk";
+      if (value >= 5 && value < 7) return "Medium Risk";
+      return "Low Risk";
+    };
+
+    // Color gradients based on risk level
+    const getGradientColor = (value) => {
+      if (value >= 7) {
+        // High risk: Darker purple gradient
+        return {
+          type: "linear",
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: "#5e37ab" }, // Darker at top
+            { offset: 1, color: "#bb94e7" }, // Lighter at bottom
+          ],
+        };
+      } else if (value >= 5 && value < 7) {
+        // Medium risk: Mid-tone gradient
+        return {
+          type: "linear",
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: "#895cb3" },
+            { offset: 1, color: "#d1b3f1" },
+          ],
+        };
+      } else {
+        // Low risk: Light purple gradient
+        return {
+          type: "linear",
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: "#b89fd9" },
+            { offset: 1, color: "#e8d4ff" },
+          ],
+        };
+      }
+    };
+
     const option = {
+      tooltip: {
+        trigger: "axis",
+        axisPointer: {
+          type: "shadow",
+        },
+        // Tooltip formatter to show risk level
+        formatter: function (params) {
+          let value = params[0].value;
+          let riskLevel = getRiskLevel(value);
+          return `Value: ${value}<br/>Risk Level: ${riskLevel}`;
+        },
+      },
       xAxis: [
         {
-          // Main X-axis for bar categories (center)
           data: dataAxis,
           axisLabel: {
             outside: true,
@@ -47,7 +109,6 @@ const Chart = () => {
           z: 10,
         },
         {
-          // Top X-axis for additional labels
           data: topAxisLabels,
           position: "top",
           axisLabel: {
@@ -55,7 +116,7 @@ const Chart = () => {
             fontSize: "12px",
             fontWeight: "500",
             fontFamily: "Poppins",
-            margin: 10, // Space between labels and axis
+            margin: 10,
           },
           axisTick: {
             show: false,
@@ -65,7 +126,6 @@ const Chart = () => {
           },
         },
         {
-          // Bottom X-axis for additional labels
           data: bottomAxisLabels,
           position: "bottom",
           axisLabel: {
@@ -73,7 +133,7 @@ const Chart = () => {
             color: "#3a0c78",
             fontSize: "14px",
             fontWeight: "600",
-            margin: 40, // Space between labels and axis
+            margin: 40,
           },
           axisTick: {
             show: false,
@@ -83,24 +143,53 @@ const Chart = () => {
           },
         },
       ],
-      yAxis: {
-        min: 0, // Minimum value on Y axis
-        max: 10, // Maximum value on Y axis
-        axisLine: {
-          show: false,
-        },
-        axisTick: {
-          show: false,
-        },
-        axisLabel: {
-          color: "#3a0c78",
-        },
-        splitLine: {
-          lineStyle: {
-            color: "#00000019", // Set Y-axis grid lines to black
+      yAxis: [
+        {
+          min: 0,
+          max: 10,
+          axisLine: {
+            show: false,
+          },
+          axisTick: {
+            show: false,
+          },
+          axisLabel: {
+            color: "#3a0c78",
+          },
+          splitLine: {
+            lineStyle: {
+              color: "#00000019",
+            },
           },
         },
-      },
+        {
+          type: "value",
+          position: "right",
+          min: 1,
+          max: 10,
+          axisLabel: {
+            show: true,
+            formatter: function (value) {
+              if (value === 10) return "High Risk";
+              if (value === 5) return "Medium Risk";
+              if (value === 1) return "Low Risk";
+            },
+            color: "#3a0c78",
+            fontSize: "12px",
+            fontWeight: "bold",
+            fontFamily: "Poppins",
+          },
+          axisLine: {
+            show: false,
+          },
+          axisTick: {
+            show: false,
+          },
+          splitLine: {
+            show: false,
+          },
+        },
+      ],
       series: [
         {
           type: "bar",
@@ -110,7 +199,9 @@ const Chart = () => {
             borderRadius: [50, 50, 50, 50],
           },
           itemStyle: {
-            color: "#3a0c78",
+            color: function (params) {
+              return getGradientColor(params.value);
+            },
             borderRadius: [50, 50, 50, 50],
             barWidth: 10,
           },
@@ -118,29 +209,47 @@ const Chart = () => {
           data: data,
           label: {
             show: true,
-            position: "top", // Show labels inside the bars
-            color: "#3a0c78", // Label color (can be adjusted if needed)
+            position: "top",
+            color: "#3a0c78",
             fontWeight: "bold",
             fontFamily: "Poppins",
             distance: 40,
           },
+          emphasis: {
+            itemStyle: {
+              color: "#5e37ab",
+            },
+          },
+          animation: true,
+          animationDuration: 5000,
+          animationEasing: "elasticOut",
         },
       ],
     };
-
     // Set the chart options
     myChart.setOption(option);
 
-    // Cleanup chart instance on component unmount
+    // Make the chart responsive on window resize
+    const resizeChart = () => {
+      myChart.resize();
+    };
+
+    window.addEventListener("resize", resizeChart);
+
+    // Cleanup chart instance and remove event listener on component unmount
     return () => {
       myChart.dispose();
+      window.removeEventListener("resize", resizeChart);
     };
   }, []);
 
   return (
-    <div>
-      <div className="bg-[#d7aefd] mx-auto py-6">
-        <div className="w-full h-[50vh] m-auto" ref={chartRef}></div>
+    <div className="bg-[#d7aefd] mx-auto py-6">
+      <div className="w-full overflow-x-auto">
+        <div
+          className="min-w-[800px] lg:min-w-full h-[75vh] m-auto"
+          ref={chartRef}
+        ></div>
       </div>
     </div>
   );
